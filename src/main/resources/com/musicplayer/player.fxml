@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.musicplayer.PlayerController"
+      fx:id="rootPane"
+      spacing="0"
+      style="-fx-background-color: #0d0d1f;">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT"
+          style="-fx-padding: 14 22 8 22; -fx-background-color: rgba(0,0,0,0.3);">
+        <Label text="♫"
+               style="-fx-text-fill: #8b5cf6; -fx-font-size: 18; -fx-padding: 0 8 0 0;"/>
+        <Label text="MUSIC PLAYER"
+               style="-fx-text-fill: #c4b5fd; -fx-font-size: 11; -fx-font-weight: bold; -fx-letter-spacing: 3;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="♬"
+               style="-fx-text-fill: #1e1e35; -fx-font-size: 15;"/>
+    </HBox>
+
+    <!-- ── Now Playing ────────────────────────────────────────────────────── -->
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-padding: 18 28 18 28; -fx-background-color: rgba(0,0,0,0.08);">
+
+        <!-- Album Art -->
+        <HBox alignment="CENTER" style="-fx-padding: 0 0 18 0;">
+            <StackPane fx:id="albumArtPane" prefWidth="152" prefHeight="152"
+                       style="-fx-background-color: #181832;
+                              -fx-background-radius: 14;
+                              -fx-effect: dropshadow(gaussian, rgba(124,58,237,0.65), 42, 0.3, 0, 8);
+                              -fx-border-color: rgba(124,58,237,0.2);
+                              -fx-border-radius: 14;
+                              -fx-border-width: 1;">
+                <ImageView fx:id="albumArtView" fitWidth="152" fitHeight="152"
+                           preserveRatio="false" smooth="true" visible="false"/>
+                <Label fx:id="musicNoteLabel" text="♪"
+                       style="-fx-font-size: 58; -fx-text-fill: #3d2870;"/>
+            </StackPane>
+        </HBox>
+
+        <!-- Song title + Artist -->
+        <VBox spacing="5" alignment="CENTER">
+            <Label fx:id="songTitle" text="Pilih lagu untuk diputar"
+                   alignment="CENTER" maxWidth="390" wrapText="true"
+                   style="-fx-text-fill: #ffffff; -fx-font-size: 15; -fx-font-weight: bold;"/>
+            <Label fx:id="artistLabel" text=""
+                   alignment="CENTER" maxWidth="390"
+                   style="-fx-text-fill: #9ca3af; -fx-font-size: 13;"/>
+        </VBox>
+
+        <!-- Progress bar + waktu -->
+        <VBox spacing="5" style="-fx-padding: 18 0 0 0;" maxWidth="396">
+            <Slider fx:id="progressSlider" min="0" max="100" value="0"
+                    styleClass="progress-slider"
+                    onMousePressed="#onSliderPressed" onMouseReleased="#onSliderReleased"/>
+            <HBox>
+                <Label fx:id="currentTime" text="0:00"
+                       style="-fx-text-fill: #4b5563; -fx-font-size: 11;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="totalTime" text="-0:00"
+                       style="-fx-text-fill: #4b5563; -fx-font-size: 11;"/>
+            </HBox>
+        </VBox>
+
+        <!-- Main Controls: Shuffle · Prev · Play · Next · Repeat -->
+        <HBox spacing="26" alignment="CENTER" style="-fx-padding: 14 0 6 0;">
+            <Button fx:id="shuffleBtn" text="⇄" onAction="#toggleShuffle"
+                    styleClass="btn-secondary" prefWidth="38" prefHeight="38">
+                <tooltip><Tooltip text="Shuffle"/></tooltip>
+            </Button>
+            <Button text="|◀" onAction="#prevSong" styleClass="btn-icon"
+                    prefWidth="38" prefHeight="38">
+                <tooltip><Tooltip text="Sebelumnya (←)"/></tooltip>
+            </Button>
+            <Button fx:id="playPauseBtn" text="▶" onAction="#playPause"
+                    styleClass="btn-play" prefWidth="60" prefHeight="60"/>
+            <Button text="▶|" onAction="#nextSong" styleClass="btn-icon"
+                    prefWidth="38" prefHeight="38">
+                <tooltip><Tooltip text="Selanjutnya (→)"/></tooltip>
+            </Button>
+            <Button fx:id="repeatBtn" text="↺" onAction="#toggleRepeat"
+                    styleClass="btn-secondary" prefWidth="38" prefHeight="38">
+                <tooltip><Tooltip text="Repeat"/></tooltip>
+            </Button>
+        </HBox>
+
+        <!-- Volume + Stop + Mini -->
+        <HBox spacing="8" alignment="CENTER" style="-fx-padding: 4 0 0 0;" maxWidth="360">
+            <Button text="■" onAction="#stopSong" styleClass="btn-stop-small"
+                    prefWidth="28" prefHeight="28">
+                <tooltip><Tooltip text="Stop"/></tooltip>
+            </Button>
+            <Label text="🔊" style="-fx-text-fill: #374151; -fx-font-size: 12; -fx-padding: 0 2 0 6;"/>
+            <Slider fx:id="volumeSlider" min="0" max="1" value="0.7" prefWidth="104"
+                    styleClass="volume-slider"/>
+            <Label fx:id="volumeLabel" text="70%"
+                   style="-fx-text-fill: #4b5563; -fx-font-size: 11;" prefWidth="32"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="⊡" onAction="#toggleMiniPlayer" styleClass="btn-mini"
+                    prefWidth="28" prefHeight="28">
+                <tooltip><Tooltip text="Mini Player"/></tooltip>
+            </Button>
+        </HBox>
+    </VBox>
+
+    <!-- ── Divider ────────────────────────────────────────────────────────── -->
+    <Region prefHeight="1" maxHeight="1"
+            style="-fx-background-color: rgba(255,255,255,0.055);"/>
+
+    <!-- ── Library ────────────────────────────────────────────────────────── -->
+    <VBox spacing="8"
+          style="-fx-padding: 12 16 14 16; -fx-background-color: rgba(0,0,0,0.28);">
+
+        <!-- Search -->
+        <TextField fx:id="searchField" promptText="  🔍  Cari judul atau artis..."
+                   styleClass="search-field"/>
+
+        <!-- Tabs -->
+        <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" styleClass="player-tabs">
+
+            <Tab text="PLAYLIST">
+                <content>
+                    <VBox spacing="5" style="-fx-padding: 6 0 0 0;">
+                        <HBox alignment="CENTER_RIGHT" spacing="6">
+                            <Label text="seret &amp; jatuhkan file ke sini"
+                                   style="-fx-text-fill: #1f2937; -fx-font-size: 10;"/>
+                            <Button text="A↑Z" onAction="#sortAZ" styleClass="btn-sort" prefHeight="22"/>
+                        </HBox>
+                        <ListView fx:id="songList" prefHeight="100" styleClass="song-list"/>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <Tab text="QUEUE">
+                <content>
+                    <VBox spacing="5" style="-fx-padding: 6 0 0 0;">
+                        <HBox alignment="CENTER_RIGHT">
+                            <Button text="Kosongkan" onAction="#clearQueue"
+                                    styleClass="btn-sort" prefHeight="22"/>
+                        </HBox>
+                        <ListView fx:id="queueList" prefHeight="100" styleClass="song-list"/>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <Tab text="RECENT">
+                <content>
+                    <VBox style="-fx-padding: 6 0 0 0;">
+                        <ListView fx:id="recentList" prefHeight="114" styleClass="song-list"/>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <Tab text="LIRIK">
+                <content>
+                    <ScrollPane fx:id="lyricsScroll" fitToWidth="true" prefHeight="124"
+                                styleClass="lyrics-scroll">
+                        <content>
+                            <Label fx:id="lyricsLabel" wrapText="true"
+                                   text="Putar lagu untuk melihat lirik"
+                                   style="-fx-text-fill: #6b7280; -fx-font-size: 12;
+                                          -fx-line-spacing: 5; -fx-padding: 6 4 6 4;"/>
+                        </content>
+                    </ScrollPane>
+                </content>
+            </Tab>
+        </TabPane>
+
+        <!-- Action Buttons -->
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <Button text="＋  Tambah" onAction="#addSong" styleClass="btn-add" prefHeight="30"/>
+            <Button text="☁" onAction="#addFromDrive" styleClass="btn-cloud"
+                    prefHeight="30" prefWidth="34">
+                <tooltip><Tooltip text="Tambah dari Google Drive / Dropbox / URL"/></tooltip>
+            </Button>
+            <Button text="Hapus" onAction="#removeSong" styleClass="btn-remove" prefHeight="30"/>
+        </HBox>
+    </VBox>
+
+</VBox>
